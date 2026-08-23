@@ -1,4 +1,4 @@
-##👨‍💻 Project
+## 👨‍💻 Project
 
 Developer: Themba Kene
 Repository: SAA Flight Booking System

@@ -38,6 +38,27 @@ try
         FROM passengers
         ORDER BY passenger_id;
 ";
+
+    //Reading and logging the passengers in the database
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("Passenger Records");
+    Console.WriteLine("--------------------------------------");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Email: {reader["email"]} | " +
+            $"Phone: {reader["phone"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------");
+    Console.WriteLine("Passenger records retrieved successfully!");
 }
 catch (Exception ex)
 {

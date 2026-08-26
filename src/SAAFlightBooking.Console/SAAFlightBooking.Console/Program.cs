@@ -26,6 +26,18 @@ try
     Console.WriteLine("======================================");
     Console.WriteLine("Database connection successful!");
     Console.WriteLine("Connected to: saa_flight_booking");
+    Console.WriteLine();
+
+    string query = @"
+        SELECT
+            passenger_id,
+            first_name,
+            last_name,
+            email,
+            phone
+        FROM passengers
+        ORDER BY passenger_id;
+";
 }
 catch (Exception ex)
 {

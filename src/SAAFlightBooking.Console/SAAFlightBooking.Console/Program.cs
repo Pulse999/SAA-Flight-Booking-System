@@ -93,7 +93,7 @@ catch (Exception ex)
     Console.WriteLine(ex.Message);
 }
 
-// Retrive data 
+// Retrieve data menu
 
 static void RetrieveData(NpgsqlConnection connection)
 {
@@ -102,7 +102,7 @@ static void RetrieveData(NpgsqlConnection connection)
     while (retrieving)
     {
         Console.WriteLine("==================================================");
-        Console.WriteLine("             RETRIEVE DATA");
+        Console.WriteLine("                 RETRIEVE DATA");
         Console.WriteLine("==================================================");
         Console.WriteLine("1. View Passengers");
         Console.WriteLine("2. View Airports");
@@ -117,7 +117,7 @@ static void RetrieveData(NpgsqlConnection connection)
         string? choice = Console.ReadLine();
 
         Console.WriteLine();
-        // place holder cases
+
         switch (choice)
         {
             case "1":
@@ -155,11 +155,14 @@ static void RetrieveData(NpgsqlConnection connection)
 
         Console.WriteLine();
     }
+}
 
 
+// Retrieve passenger records
 
-
-string query = @"
+static void RetrievePassengers(NpgsqlConnection connection)
+{
+    string query = @"
         SELECT
             passenger_id,
             first_name,
@@ -168,28 +171,25 @@ string query = @"
             phone
         FROM passengers
         ORDER BY passenger_id;
-";
+    ";
 
-//Reading and logging the passengers in the database
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
 
-using NpgsqlCommand command = new NpgsqlCommand(query, connection);
-using NpgsqlDataReader reader = command.ExecuteReader();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                PASSENGER RECORDS");
+    Console.WriteLine("==================================================");
 
-Console.WriteLine("==================================================");
-Console.WriteLine("             PASSENGER RECORDS");
-Console.WriteLine("==================================================");
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Email: {reader["email"]} | " +
+            $"Phone: {reader["phone"]}"
+        );
+    }
 
-while (reader.Read())
-{
-    Console.WriteLine(
-        $"ID: {reader["passenger_id"]} | " +
-        $"Name: {reader["first_name"]} {reader["last_name"]} | " +
-        $"Email: {reader["email"]} | " +
-        $"Phone: {reader["phone"]}"
-    );
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Passenger records retrieved successfully!");
 }
-
-Console.WriteLine("--------------------------------------------------");
-Console.WriteLine("Passenger records retrieved successfully!");
-}
-

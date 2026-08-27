@@ -129,7 +129,7 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "3":
-                Console.WriteLine("Flight retrieval coming next.");
+                RetrieveFlights(connection);
                 break;
 
             case "4":
@@ -230,4 +230,55 @@ static void RetrieveAirports(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Airport records retrieved successfully!");
+}
+
+// Retrieve Flight records 
+
+static void RetrieveFlights(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_id,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city,
+            f.departure_date_time,
+            f.arrival_date_time,
+            f.capacity
+        FROM flights f
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+        ORDER BY f.flight_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  FLIGHT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["flight_id"]} | " +
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Departure: {reader["departure_date_time"]} | " +
+            $"Arrival: {reader["arrival_date_time"]} | " +
+            $"Capacity: {reader["capacity"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Flight records retrieved successfully!");
 }

@@ -29,6 +29,63 @@ try
     Console.WriteLine("Connected to: saa_flight_booking");
     Console.WriteLine();
 
+    bool running = true;
+
+    // Data basic operations(CRUD) MENU 
+
+    while (running)
+    {
+        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("MAIN MENU");
+        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("1. Insert Data");
+        Console.WriteLine("2. Retrieve Data");
+        Console.WriteLine("3. Update Data");
+        Console.WriteLine("4. Delete Data");
+        Console.WriteLine("5. Reports & Joins");
+        Console.WriteLine("6. Exit");
+        Console.WriteLine("--------------------------------------------------");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                Console.WriteLine("Insert Data functionality will be added in Task 6.");
+                break;
+
+            case "2":
+                RetrieveData(connection);
+                break;
+
+            case "3":
+                Console.WriteLine("Update Data functionality will be added in Task 8.");
+                break;
+
+            case "4":
+                Console.WriteLine("Delete Data functionality will be added in Task 9.");
+                break;
+
+            case "5":
+                Console.WriteLine("Reports & Joins functionality will be added in Task 10.");
+                break;
+
+            case "6":
+                running = false;
+                Console.WriteLine("Thank you for using the SAA Flight Booking System.");
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select a number from 1 to 6.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+
     string query = @"
         SELECT
             passenger_id,

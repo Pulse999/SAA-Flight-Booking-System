@@ -157,10 +157,7 @@ static void RetrieveData(NpgsqlConnection connection)
     }
 
 
-static void RetrievePassengers(NpgsqlConnection connection)
-{
-    throw new NotImplementedException();
-}
+
 
 string query = @"
         SELECT

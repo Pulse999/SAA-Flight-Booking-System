@@ -123,3 +123,8 @@ catch (Exception ex)
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
 }
+
+void RetrieveData(NpgsqlConnection connection)
+{
+    throw new NotImplementedException();
+}

@@ -93,6 +93,75 @@ catch (Exception ex)
     Console.WriteLine(ex.Message);
 }
 
+// Retrive data 
+
+static void RetrieveData(NpgsqlConnection connection)
+{
+    bool retrieving = true;
+
+    while (retrieving)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("             RETRIEVE DATA");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. View Passengers");
+        Console.WriteLine("2. View Airports");
+        Console.WriteLine("3. View Flights");
+        Console.WriteLine("4. View Bookings");
+        Console.WriteLine("5. View Tickets");
+        Console.WriteLine("6. View Payments");
+        Console.WriteLine("7. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                RetrievePassengers(connection);
+                break;
+
+            case "2":
+                Console.WriteLine("Airport retrieval coming next.");
+                break;
+
+            case "3":
+                Console.WriteLine("Flight retrieval coming next.");
+                break;
+
+            case "4":
+                Console.WriteLine("Booking retrieval coming next.");
+                break;
+
+            case "5":
+                Console.WriteLine("Ticket retrieval coming next.");
+                break;
+
+            case "6":
+                Console.WriteLine("Payment retrieval coming next.");
+                break;
+
+            case "7":
+                retrieving = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+static void RetrievePassengers(NpgsqlConnection connection)
+{
+    throw new NotImplementedException();
+}
+
 string query = @"
         SELECT
             passenger_id,
@@ -124,14 +193,3 @@ string query = @"
 
     Console.WriteLine("--------------------------------------");
     Console.WriteLine("Passenger records retrieved successfully!");
-}
-catch (Exception ex)
-{
-    Console.WriteLine("Database connection failed.");
-    Console.WriteLine(ex.Message);
-}
-
-void RetrieveData(NpgsqlConnection connection)
-{
-    throw new NotImplementedException();
-}

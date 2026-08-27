@@ -50,7 +50,7 @@ try
         string? choice = Console.ReadLine();
 
         Console.WriteLine();
-
+        // Place holder cases in the meantime 
         switch (choice)
         {
             case "1":
@@ -117,7 +117,7 @@ static void RetrieveData(NpgsqlConnection connection)
         string? choice = Console.ReadLine();
 
         Console.WriteLine();
-
+        // place holder cases
         switch (choice)
         {
             case "1":

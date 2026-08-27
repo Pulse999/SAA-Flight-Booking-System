@@ -155,7 +155,7 @@ static void RetrieveData(NpgsqlConnection connection)
 
         Console.WriteLine();
     }
-}
+
 
 static void RetrievePassengers(NpgsqlConnection connection)
 {
@@ -173,23 +173,26 @@ string query = @"
         ORDER BY passenger_id;
 ";
 
-    //Reading and logging the passengers in the database
+//Reading and logging the passengers in the database
 
-    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
-    using NpgsqlDataReader reader = command.ExecuteReader();
+using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+using NpgsqlDataReader reader = command.ExecuteReader();
 
-    Console.WriteLine("Passenger Records");
-    Console.WriteLine("--------------------------------------");
+Console.WriteLine("==================================================");
+Console.WriteLine("             PASSENGER RECORDS");
+Console.WriteLine("==================================================");
 
-    while (reader.Read())
-    {
-        Console.WriteLine(
-            $"ID: {reader["passenger_id"]} | " +
-            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
-            $"Email: {reader["email"]} | " +
-            $"Phone: {reader["phone"]}"
-        );
-    }
+while (reader.Read())
+{
+    Console.WriteLine(
+        $"ID: {reader["passenger_id"]} | " +
+        $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+        $"Email: {reader["email"]} | " +
+        $"Phone: {reader["phone"]}"
+    );
+}
 
-    Console.WriteLine("--------------------------------------");
-    Console.WriteLine("Passenger records retrieved successfully!");
+Console.WriteLine("--------------------------------------------------");
+Console.WriteLine("Passenger records retrieved successfully!");
+}
+

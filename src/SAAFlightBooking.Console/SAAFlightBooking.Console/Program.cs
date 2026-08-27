@@ -125,7 +125,7 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "2":
-                Console.WriteLine("Airport retrieval coming next.");
+                RetrieveAirports(connection);
                 break;
 
             case "3":
@@ -192,4 +192,42 @@ static void RetrievePassengers(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Passenger records retrieved successfully!");
+}
+
+
+// Retrieve Airports records
+
+static void RetrieveAirports(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            airport_id,
+            airport_code,
+            airport_name,
+            city,
+            country
+        FROM airports
+        ORDER BY airport_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  AIRPORT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["airport_id"]} | " +
+            $"Code: {reader["airport_code"]} | " +
+            $"Airport: {reader["airport_name"]} | " +
+            $"City: {reader["city"]} | " +
+            $"Country: {reader["country"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Airport records retrieved successfully!");
 }

@@ -14,6 +14,7 @@ string connectionString =
     "Database=SAA_flight_booking;" +
     "Username=postgres;" +
     $"Password={password};";
+// Connect to the PostgreSQL database using Npgsql and retrieve passenger records
 
 try
 {

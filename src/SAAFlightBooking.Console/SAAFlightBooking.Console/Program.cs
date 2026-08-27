@@ -85,8 +85,15 @@ try
 
         Console.WriteLine();
     }
+}
 
-    string query = @"
+catch (Exception ex)
+{
+    Console.WriteLine("Database connection failed.");
+    Console.WriteLine(ex.Message);
+}
+
+string query = @"
         SELECT
             passenger_id,
             first_name,

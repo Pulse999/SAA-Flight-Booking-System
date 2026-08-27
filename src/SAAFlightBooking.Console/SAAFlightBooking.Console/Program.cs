@@ -26,7 +26,7 @@ try
     Console.WriteLine(" SAA Flight Booking System");
     Console.WriteLine("======================================");
     Console.WriteLine("Database connection successful!");
-    Console.WriteLine("Connected to: saa_flight_booking");
+    Console.WriteLine("Connected to: SAA_flight_booking");
     Console.WriteLine();
 
     bool running = true;

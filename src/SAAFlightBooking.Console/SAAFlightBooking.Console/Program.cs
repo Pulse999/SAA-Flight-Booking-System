@@ -137,7 +137,7 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "5":
-                Console.WriteLine("Ticket retrieval coming next.");
+                RetrieveTickets(connection);
                 break;
 
             case "6":
@@ -360,4 +360,41 @@ static void RetrieveBookings(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Booking records retrieved successfully!");
+}
+
+// Retrieve ticket data 
+
+static void RetrieveTickets(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            t.ticket_id,
+            t.ticket_number,
+            t.ticket_status,
+            t.issue_date,
+            t.booking_id
+        FROM tickets t
+        ORDER BY t.ticket_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  TICKET RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Ticket ID: {reader["ticket_id"]} | " +
+            $"Ticket Number: {reader["ticket_number"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Status: {reader["ticket_status"]} | " +
+            $"Issue Date: {reader["issue_date"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Ticket records retrieved successfully!");
 }

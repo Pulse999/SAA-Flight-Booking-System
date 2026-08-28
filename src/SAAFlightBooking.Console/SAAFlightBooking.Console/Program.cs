@@ -141,7 +141,7 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "6":
-                Console.WriteLine("Payment retrieval coming next.");
+                RetrievePayments(connection);
                 break;
 
             case "7":
@@ -397,4 +397,43 @@ static void RetrieveTickets(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Ticket records retrieved successfully!");
+}
+
+// Retrieve payment records 
+
+static void RetrievePayments(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            payment_id,
+            booking_id,
+            amount,
+            payment_date,
+            payment_status,
+            payment_method
+        FROM payments
+        ORDER BY payment_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                 PAYMENT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Payment ID: {reader["payment_id"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Amount: R{reader["amount"]} | " +
+            $"Date: {reader["payment_date"]} | " +
+            $"Status: {reader["payment_status"]} | " +
+            $"Method: {reader["payment_method"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Payment records retrieved successfully!");
 }

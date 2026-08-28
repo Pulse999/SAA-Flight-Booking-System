@@ -133,7 +133,7 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "4":
-                Console.WriteLine("Booking retrieval coming next.");
+                RetrieveBookings(connection);
                 break;
 
             case "5":
@@ -281,4 +281,83 @@ static void RetrieveFlights(NpgsqlConnection connection)
     }
 
     Console.WriteLine("Flight records retrieved successfully!");
+}
+
+// Retrieve Booing records 
+
+static void RetrieveBookings(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            b.booking_id,
+            b.booking_date,
+            b.booking_status,
+            p.first_name,
+            p.last_name,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city
+        FROM bookings b
+
+        INNER JOIN booking_passengers bp
+            ON b.booking_id = bp.booking_id
+
+        INNER JOIN passengers p
+            ON bp.passenger_id = p.passenger_id
+
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+
+        ORDER BY b.booking_id, p.last_name, p.first_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  BOOKING RECORDS");
+    Console.WriteLine("==================================================");
+
+    int currentBookingId = -1;
+
+    while (reader.Read())
+    {
+        int bookingId = Convert.ToInt32(reader["booking_id"]);
+
+        if (bookingId != currentBookingId)
+        {
+            if (currentBookingId != -1)
+            {
+                Console.WriteLine("--------------------------------------------------");
+            }
+
+            currentBookingId = bookingId;
+
+            Console.WriteLine($"Booking ID: {reader["booking_id"]}");
+            Console.WriteLine($"Booking Date: {reader["booking_date"]}");
+            Console.WriteLine($"Status: {reader["booking_status"]}");
+            Console.WriteLine(
+                $"Flight: {reader["flight_number"]} | " +
+                $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+                $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+            );
+
+            Console.WriteLine("Passengers:");
+        }
+
+        Console.WriteLine(
+            $"  - {reader["first_name"]} {reader["last_name"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Booking records retrieved successfully!");
 }

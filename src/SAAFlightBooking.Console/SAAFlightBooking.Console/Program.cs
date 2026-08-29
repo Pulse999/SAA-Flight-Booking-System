@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using static System.Net.WebRequestMethods;
 
 string? password = Environment.GetEnvironmentVariable("SAA_DB_PASSWORD");
 
@@ -26,9 +27,147 @@ try
     Console.WriteLine(" SAA Flight Booking System");
     Console.WriteLine("======================================");
     Console.WriteLine("Database connection successful!");
-    Console.WriteLine("Connected to: saa_flight_booking");
+    Console.WriteLine("Connected to: SAA_flight_booking");
     Console.WriteLine();
 
+    bool running = true;
+
+    // Data basic operations(CRUD) MENU 
+
+    while (running)
+    {
+        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("MAIN MENU");
+        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("1. Insert Data");
+        Console.WriteLine("2. Retrieve Data");
+        Console.WriteLine("3. Update Data");
+        Console.WriteLine("4. Delete Data");
+        Console.WriteLine("5. Reports & Joins");
+        Console.WriteLine("6. Exit");
+        Console.WriteLine("--------------------------------------------------");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+        // Place holder cases in the meantime 
+        switch (choice)
+        {
+            case "1":
+                Console.WriteLine("Insert Data functionality will be added in Task 6.");
+                break;
+
+            case "2":
+                RetrieveData(connection);
+                break;
+
+            case "3":
+                Console.WriteLine("Update Data functionality will be added in Task 8.");
+                break;
+
+            case "4":
+                Console.WriteLine("Delete Data functionality will be added in Task 9.");
+                break;
+
+            case "5":
+                Console.WriteLine("Reports & Joins functionality will be added in Task 10.");
+                break;
+
+            case "6":
+                running = false;
+                Console.WriteLine("Thank you for using the SAA Flight Booking System.");
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select a number from 1 to 6.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+catch (Exception ex)
+{
+    Console.WriteLine("Database connection failed.");
+    Console.WriteLine(ex.Message);
+}
+
+// Retrieve data menu
+
+static void RetrieveData(NpgsqlConnection connection)
+{
+    bool retrieving = true;
+
+    while (retrieving)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("                 RETRIEVE DATA");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. View Passengers");
+        Console.WriteLine("2. View Airports");
+        Console.WriteLine("3. View Flights");
+        Console.WriteLine("4. View Bookings");
+        Console.WriteLine("5. View Tickets");
+        Console.WriteLine("6. View Payments");
+        Console.WriteLine("7. Search / Filter Records");
+        Console.WriteLine("8. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                RetrievePassengers(connection);
+                break;
+
+            case "2":
+                RetrieveAirports(connection);
+                break;
+
+            case "3":
+                RetrieveFlights(connection);
+                break;
+
+            case "4":
+                RetrieveBookings(connection);
+                break;
+
+            case "5":
+                RetrieveTickets(connection);
+                break;
+
+            case "6":
+                RetrievePayments(connection);
+                break;
+
+            case "7":
+                SearchAndFilterData(connection);
+                break;
+
+            case "8":
+                retrieving = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+
+// Retrieve passenger records
+
+static void RetrievePassengers(NpgsqlConnection connection)
+{
     string query = @"
         SELECT
             passenger_id,
@@ -38,15 +177,14 @@ try
             phone
         FROM passengers
         ORDER BY passenger_id;
-";
-
-    //Reading and logging the passengers in the database
+    ";
 
     using NpgsqlCommand command = new NpgsqlCommand(query, connection);
     using NpgsqlDataReader reader = command.ExecuteReader();
 
-    Console.WriteLine("Passenger Records");
-    Console.WriteLine("--------------------------------------");
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                PASSENGER RECORDS");
+    Console.WriteLine("==================================================");
 
     while (reader.Read())
     {
@@ -58,11 +196,548 @@ try
         );
     }
 
-    Console.WriteLine("--------------------------------------");
+    Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Passenger records retrieved successfully!");
 }
-catch (Exception ex)
+
+
+// Retrieve Airports records
+
+static void RetrieveAirports(NpgsqlConnection connection)
 {
-    Console.WriteLine("Database connection failed.");
-    Console.WriteLine(ex.Message);
+    string query = @"
+        SELECT
+            airport_id,
+            airport_code,
+            airport_name,
+            city,
+            country
+        FROM airports
+        ORDER BY airport_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  AIRPORT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["airport_id"]} | " +
+            $"Code: {reader["airport_code"]} | " +
+            $"Airport: {reader["airport_name"]} | " +
+            $"City: {reader["city"]} | " +
+            $"Country: {reader["country"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Airport records retrieved successfully!");
+}
+
+// Retrieve Flight records 
+
+static void RetrieveFlights(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_id,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city,
+            f.departure_date_time,
+            f.arrival_date_time,
+            f.capacity
+        FROM flights f
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+        ORDER BY f.flight_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  FLIGHT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"ID: {reader["flight_id"]} | " +
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Departure: {reader["departure_date_time"]} | " +
+            $"Arrival: {reader["arrival_date_time"]} | " +
+            $"Capacity: {reader["capacity"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Flight records retrieved successfully!");
+}
+
+// Retrieve Booing records 
+
+static void RetrieveBookings(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            b.booking_id,
+            b.booking_date,
+            b.booking_status,
+            p.first_name,
+            p.last_name,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city
+        FROM bookings b
+
+        INNER JOIN booking_passengers bp
+            ON b.booking_id = bp.booking_id
+
+        INNER JOIN passengers p
+            ON bp.passenger_id = p.passenger_id
+
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+
+        ORDER BY b.booking_id, p.last_name, p.first_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  BOOKING RECORDS");
+    Console.WriteLine("==================================================");
+
+    int currentBookingId = -1;
+
+    while (reader.Read())
+    {
+        int bookingId = Convert.ToInt32(reader["booking_id"]);
+
+        if (bookingId != currentBookingId)
+        {
+            if (currentBookingId != -1)
+            {
+                Console.WriteLine("--------------------------------------------------");
+            }
+
+            currentBookingId = bookingId;
+
+            Console.WriteLine($"Booking ID: {reader["booking_id"]}");
+            Console.WriteLine($"Booking Date: {reader["booking_date"]}");
+            Console.WriteLine($"Status: {reader["booking_status"]}");
+            Console.WriteLine(
+                $"Flight: {reader["flight_number"]} | " +
+                $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+                $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+            );
+
+            Console.WriteLine("Passengers:");
+        }
+
+        Console.WriteLine(
+            $"  - {reader["first_name"]} {reader["last_name"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Booking records retrieved successfully!");
+}
+
+// Retrieve ticket data 
+
+static void RetrieveTickets(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            t.ticket_id,
+            t.ticket_number,
+            t.ticket_status,
+            t.issue_date,
+            t.booking_id
+        FROM tickets t
+        ORDER BY t.ticket_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  TICKET RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Ticket ID: {reader["ticket_id"]} | " +
+            $"Ticket Number: {reader["ticket_number"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Status: {reader["ticket_status"]} | " +
+            $"Issue Date: {reader["issue_date"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Ticket records retrieved successfully!");
+}
+
+// Retrieve payment records 
+
+static void RetrievePayments(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            payment_id,
+            booking_id,
+            amount,
+            payment_date,
+            payment_status,
+            payment_method
+        FROM payments
+        ORDER BY payment_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                 PAYMENT RECORDS");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Payment ID: {reader["payment_id"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Amount: R{reader["amount"]} | " +
+            $"Date: {reader["payment_date"]} | " +
+            $"Status: {reader["payment_status"]} | " +
+            $"Method: {reader["payment_method"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Payment records retrieved successfully!");
+}
+
+// Search anf retrival menu
+
+static void SearchAndFilterData(NpgsqlConnection connection)
+{
+    bool searching = true;
+
+    while (searching)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("             SEARCH / FILTER RECORDS");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Search Passenger by Name");
+        Console.WriteLine("2. Search Flights by Airport");
+        Console.WriteLine("3. Filter Bookings by Status");
+        Console.WriteLine("4. Filter Payments by Status");
+        Console.WriteLine("5. Back");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                SearchPassengers(connection);
+                break;
+
+            case "2":
+                SearchFlightsByAirport(connection);
+                break;
+
+            case "3":
+                FilterBookingsByStatus(connection);
+                break;
+
+            case "4":
+                FilterPaymentsByStatus(connection);
+                break;
+
+            case "5":
+                searching = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+// Search for passengers by first name or last name
+
+static void SearchPassengers(NpgsqlConnection connection)
+{
+    Console.Write("Enter passenger first name or last name: ");
+    string? search = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(search))
+    {
+        Console.WriteLine("Search value cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            passenger_id,
+            first_name,
+            last_name,
+            email,
+            phone
+        FROM passengers
+        WHERE first_name ILIKE @search
+           OR last_name ILIKE @search
+        ORDER BY last_name, first_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@search", $"%{search}%");
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              PASSENGER SEARCH RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Email: {reader["email"]} | " +
+            $"Phone: {reader["phone"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No passengers found.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+}
+
+//Search flights by airport
+
+static void SearchFlightsByAirport(NpgsqlConnection connection)
+{
+    Console.Write("Enter airport code (e.g. JNB, CPT, DUR): ");
+    string? airportCode = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(airportCode))
+    {
+        Console.WriteLine("Airport code cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            f.flight_id,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city,
+            f.departure_date_time,
+            f.arrival_date_time,
+            f.capacity
+        FROM flights f
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+        WHERE dep.airport_code ILIKE @airport
+           OR arr.airport_code ILIKE @airport
+        ORDER BY f.departure_date_time;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@airport", airportCode);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               FLIGHT SEARCH RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Departure: {reader["departure_date_time"]} | " +
+            $"Arrival: {reader["arrival_date_time"]} | " +
+            $"Capacity: {reader["capacity"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No flights found for that airport.");
+    }
+}
+
+// Filter bookings by status
+
+static void FilterBookingsByStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter booking status (Pending, Confirmed, Cancelled): ");
+    string? status = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(status))
+    {
+        Console.WriteLine("Booking status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            booking_id,
+            flight_id,
+            booking_date,
+            booking_status
+        FROM bookings
+        WHERE booking_status ILIKE @status
+        ORDER BY booking_date;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@status", status);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              BOOKING FILTER RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight ID: {reader["flight_id"]} | " +
+            $"Date: {reader["booking_date"]} | " +
+            $"Status: {reader["booking_status"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No bookings found with that status.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+}
+
+// Filter payments by status
+
+static void FilterPaymentsByStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter payment status (Paid, Pending, Failed, Refunded): ");
+    string? status = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(status))
+    {
+        Console.WriteLine("Payment status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            payment_id,
+            booking_id,
+            amount,
+            payment_date,
+            payment_status,
+            payment_method
+        FROM payments
+        WHERE payment_status ILIKE @status
+        ORDER BY payment_date;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@status", status);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              PAYMENT FILTER RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Payment ID: {reader["payment_id"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Amount: R{reader["amount"]} | " +
+            $"Status: {reader["payment_status"]} | " +
+            $"Method: {reader["payment_method"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No payments found with that status.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
 }

@@ -496,3 +496,61 @@ static void SearchAndFilterData(NpgsqlConnection connection)
         Console.WriteLine();
     }
 }
+
+// Search for passengers 
+
+static void SearchPassengers(NpgsqlConnection connection)
+{
+    Console.Write("Enter passenger first name or last name: ");
+    string? search = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(search))
+    {
+        Console.WriteLine("Search value cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            passenger_id,
+            first_name,
+            last_name,
+            email,
+            phone
+        FROM passengers
+        WHERE first_name ILIKE @search
+           OR last_name ILIKE @search
+        ORDER BY last_name, first_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@search", $"%{search}%");
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              PASSENGER SEARCH RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Email: {reader["email"]} | " +
+            $"Phone: {reader["phone"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No passengers found.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+}

@@ -110,7 +110,8 @@ static void RetrieveData(NpgsqlConnection connection)
         Console.WriteLine("4. View Bookings");
         Console.WriteLine("5. View Tickets");
         Console.WriteLine("6. View Payments");
-        Console.WriteLine("7. Back to Main Menu");
+        Console.WriteLine("7. Search / Filter Records");
+        Console.WriteLine("8. Back to Main Menu");
         Console.WriteLine("==================================================");
         Console.Write("Select an option: ");
 

@@ -473,15 +473,15 @@ static void SearchAndFilterData(NpgsqlConnection connection)
                 break;
 
             case "2":
-                SearchFlightsByAirport(connection);
+                //SearchFlightsByAirport(connection);
                 break;
 
             case "3":
-                FilterBookingsByStatus(connection);
+                //FilterBookingsByStatus(connection);
                 break;
 
             case "4":
-                FilterPaymentsByStatus(connection);
+                //FilterPaymentsByStatus(connection);
                 break;
 
             case "5":
@@ -497,7 +497,7 @@ static void SearchAndFilterData(NpgsqlConnection connection)
     }
 }
 
-// Search for passengers 
+// Search for passengers by first name or last name
 
 static void SearchPassengers(NpgsqlConnection connection)
 {
@@ -554,3 +554,4 @@ static void SearchPassengers(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
 }
+

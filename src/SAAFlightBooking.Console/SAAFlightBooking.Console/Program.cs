@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using static System.Net.WebRequestMethods;
 
 string? password = Environment.GetEnvironmentVariable("SAA_DB_PASSWORD");
 
@@ -477,7 +478,7 @@ static void SearchAndFilterData(NpgsqlConnection connection)
                 break;
 
             case "3":
-                //FilterBookingsByStatus(connection);
+                FilterBookingsByStatus(connection);
                 break;
 
             case "4":
@@ -626,3 +627,58 @@ static void SearchFlightsByAirport(NpgsqlConnection connection)
     }
 }
 
+// Filter bookings by status
+
+static void FilterBookingsByStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter booking status (Pending, Confirmed, Cancelled): ");
+    string? status = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(status))
+    {
+        Console.WriteLine("Booking status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            booking_id,
+            flight_id,
+            booking_date,
+            booking_status
+        FROM bookings
+        WHERE booking_status ILIKE @status
+        ORDER BY booking_date;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@status", status);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              BOOKING FILTER RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight ID: {reader["flight_id"]} | " +
+            $"Date: {reader["booking_date"]} | " +
+            $"Status: {reader["booking_status"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No bookings found with that status.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+}

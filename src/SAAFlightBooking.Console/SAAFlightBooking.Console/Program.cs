@@ -146,6 +146,10 @@ static void RetrieveData(NpgsqlConnection connection)
                 break;
 
             case "7":
+                SearchAndFilterData(connection);
+                break;
+
+            case "8":
                 retrieving = false;
                 break;
 
@@ -437,4 +441,58 @@ static void RetrievePayments(NpgsqlConnection connection)
 
     Console.WriteLine("--------------------------------------------------");
     Console.WriteLine("Payment records retrieved successfully!");
+}
+
+// Search anf retrival menu
+
+static void SearchAndFilterData(NpgsqlConnection connection)
+{
+    bool searching = true;
+
+    while (searching)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("             SEARCH / FILTER RECORDS");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Search Passenger by Name");
+        Console.WriteLine("2. Search Flights by Airport");
+        Console.WriteLine("3. Filter Bookings by Status");
+        Console.WriteLine("4. Filter Payments by Status");
+        Console.WriteLine("5. Back");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                SearchPassengers(connection);
+                break;
+
+            case "2":
+                SearchFlightsByAirport(connection);
+                break;
+
+            case "3":
+                FilterBookingsByStatus(connection);
+                break;
+
+            case "4":
+                FilterPaymentsByStatus(connection);
+                break;
+
+            case "5":
+                searching = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
 }

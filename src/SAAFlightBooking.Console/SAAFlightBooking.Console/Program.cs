@@ -482,7 +482,7 @@ static void SearchAndFilterData(NpgsqlConnection connection)
                 break;
 
             case "4":
-                //FilterPaymentsByStatus(connection);
+                FilterPaymentsByStatus(connection);
                 break;
 
             case "5":
@@ -678,6 +678,65 @@ static void FilterBookingsByStatus(NpgsqlConnection connection)
     if (!found)
     {
         Console.WriteLine("No bookings found with that status.");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+}
+
+// Filter payments by status
+
+static void FilterPaymentsByStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter payment status (Paid, Pending, Failed, Refunded): ");
+    string? status = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(status))
+    {
+        Console.WriteLine("Payment status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            payment_id,
+            booking_id,
+            amount,
+            payment_date,
+            payment_status,
+            payment_method
+        FROM payments
+        WHERE payment_status ILIKE @status
+        ORDER BY payment_date;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@status", status);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              PAYMENT FILTER RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Payment ID: {reader["payment_id"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Amount: R{reader["amount"]} | " +
+            $"Status: {reader["payment_status"]} | " +
+            $"Method: {reader["payment_method"]}"
+        );
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No payments found with that status.");
     }
 
     Console.WriteLine("--------------------------------------------------");

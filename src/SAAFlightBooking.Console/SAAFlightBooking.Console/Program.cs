@@ -473,7 +473,7 @@ static void SearchAndFilterData(NpgsqlConnection connection)
                 break;
 
             case "2":
-                //SearchFlightsByAirport(connection);
+                SearchFlightsByAirport(connection);
                 break;
 
             case "3":
@@ -553,5 +553,76 @@ static void SearchPassengers(NpgsqlConnection connection)
     }
 
     Console.WriteLine("--------------------------------------------------");
+}
+
+//Search flights by airport
+
+static void SearchFlightsByAirport(NpgsqlConnection connection)
+{
+    Console.Write("Enter airport code (e.g. JNB, CPT, DUR): ");
+    string? airportCode = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(airportCode))
+    {
+        Console.WriteLine("Airport code cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        SELECT
+            f.flight_id,
+            f.flight_number,
+            dep.airport_code AS departure_code,
+            dep.city AS departure_city,
+            arr.airport_code AS arrival_code,
+            arr.city AS arrival_city,
+            f.departure_date_time,
+            f.arrival_date_time,
+            f.capacity
+        FROM flights f
+        INNER JOIN airports dep
+            ON f.departure_airport_id = dep.airport_id
+        INNER JOIN airports arr
+            ON f.arrival_airport_id = arr.airport_id
+        WHERE dep.airport_code ILIKE @airport
+           OR arr.airport_code ILIKE @airport
+        ORDER BY f.departure_date_time;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    command.Parameters.AddWithValue("@airport", airportCode);
+
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine();
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               FLIGHT SEARCH RESULTS");
+    Console.WriteLine("==================================================");
+
+    bool found = false;
+
+    while (reader.Read())
+    {
+        found = true;
+
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Departure: {reader["departure_date_time"]} | " +
+            $"Arrival: {reader["arrival_date_time"]} | " +
+            $"Capacity: {reader["capacity"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    if (!found)
+    {
+        Console.WriteLine("No flights found for that airport.");
+    }
 }
 

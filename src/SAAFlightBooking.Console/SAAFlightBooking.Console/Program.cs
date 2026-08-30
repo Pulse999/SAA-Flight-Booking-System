@@ -188,6 +188,51 @@ static void UpdatePassengerEmail(NpgsqlConnection connection)
     }
 }
 
+// Update passenger booking status 
+
+static void UpdateBookingStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter booking ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int bookingId))
+    {
+        Console.WriteLine("Invalid booking ID.");
+        return;
+    }
+
+    Console.Write("Enter new booking status (Pending, Confirmed, Cancelled): ");
+    string? newStatus = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newStatus))
+    {
+        Console.WriteLine("Booking status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE bookings
+        SET booking_status = @status
+        WHERE booking_id = @bookingId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@status", newStatus);
+    command.Parameters.AddWithValue("@bookingId", bookingId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Booking status updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Booking not found.");
+    }
+}
+
 // Retrieve data menu
 
 static void RetrieveData(NpgsqlConnection connection)

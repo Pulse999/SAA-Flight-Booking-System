@@ -63,7 +63,7 @@ try
                 break;
 
             case "3":
-                Console.WriteLine("Update Data functionality will be added in Task 8.");
+                UpdateData(connection);
                 break;
 
             case "4":
@@ -92,6 +92,55 @@ catch (Exception ex)
 {
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
+}
+
+// Update submenu
+
+static void UpdateData(NpgsqlConnection connection)
+{
+    bool updating = true;
+
+    while (updating)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("                 UPDATE DATA");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Update Passenger Email");
+        Console.WriteLine("2. Update Booking Status");
+        Console.WriteLine("3. Update Payment Status");
+        Console.WriteLine("4. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                UpdatePassengerEmail(connection);
+                break;
+
+            case "2":
+                UpdateBookingStatus(connection);
+                break;
+
+            case "3":
+                UpdatePaymentStatus(connection);
+                break;
+
+            case "4":
+                updating = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select 1 to 4.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
 }
 
 // Retrieve data menu

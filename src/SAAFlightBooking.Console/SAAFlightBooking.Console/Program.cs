@@ -233,6 +233,51 @@ static void UpdateBookingStatus(NpgsqlConnection connection)
     }
 }
 
+// Update passenger payment status 
+
+static void UpdatePaymentStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter payment ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int paymentId))
+    {
+        Console.WriteLine("Invalid payment ID.");
+        return;
+    }
+
+    Console.Write("Enter new payment status (Pending, Paid, Failed, Refunded): ");
+    string? newStatus = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newStatus))
+    {
+        Console.WriteLine("Payment status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE payments
+        SET payment_status = @status
+        WHERE payment_id = @paymentId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@status", newStatus);
+    command.Parameters.AddWithValue("@paymentId", paymentId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Payment status updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Payment not found.");
+    }
+}
+
 // Retrieve data menu
 
 static void RetrieveData(NpgsqlConnection connection)

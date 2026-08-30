@@ -143,6 +143,51 @@ static void UpdateData(NpgsqlConnection connection)
     }
 }
 
+// Update passenger emails
+
+static void UpdatePassengerEmail(NpgsqlConnection connection)
+{
+    Console.Write("Enter passenger ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int passengerId))
+    {
+        Console.WriteLine("Invalid passenger ID.");
+        return;
+    }
+
+    Console.Write("Enter new email address: ");
+    string? newEmail = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newEmail))
+    {
+        Console.WriteLine("Email address cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE passengers
+        SET email = @email
+        WHERE passenger_id = @passengerId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@email", newEmail);
+    command.Parameters.AddWithValue("@passengerId", passengerId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Passenger email updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Passenger not found.");
+    }
+}
+
 // Retrieve data menu
 
 static void RetrieveData(NpgsqlConnection connection)

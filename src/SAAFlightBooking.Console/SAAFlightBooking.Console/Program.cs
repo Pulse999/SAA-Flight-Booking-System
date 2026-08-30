@@ -63,7 +63,7 @@ try
                 break;
 
             case "3":
-                Console.WriteLine("Update Data functionality will be added in Task 8.");
+                UpdateData(connection);
                 break;
 
             case "4":
@@ -92,6 +92,190 @@ catch (Exception ex)
 {
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
+}
+
+// Update submenu
+
+static void UpdateData(NpgsqlConnection connection)
+{
+    bool updating = true;
+
+    while (updating)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("                 UPDATE DATA");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Update Passenger Email");
+        Console.WriteLine("2. Update Booking Status");
+        Console.WriteLine("3. Update Payment Status");
+        Console.WriteLine("4. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                UpdatePassengerEmail(connection);
+                break;
+
+            case "2":
+                UpdateBookingStatus(connection);
+                break;
+
+            case "3":
+                UpdatePaymentStatus(connection);
+                break;
+
+            case "4":
+                updating = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select 1 to 4.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+// Update passenger emails
+
+static void UpdatePassengerEmail(NpgsqlConnection connection)
+{
+    Console.Write("Enter passenger ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int passengerId))
+    {
+        Console.WriteLine("Invalid passenger ID.");
+        return;
+    }
+
+    Console.Write("Enter new email address: ");
+    string? newEmail = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newEmail))
+    {
+        Console.WriteLine("Email address cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE passengers
+        SET email = @email
+        WHERE passenger_id = @passengerId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@email", newEmail);
+    command.Parameters.AddWithValue("@passengerId", passengerId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Passenger email updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Passenger not found.");
+    }
+}
+
+// Update passenger booking status 
+
+static void UpdateBookingStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter booking ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int bookingId))
+    {
+        Console.WriteLine("Invalid booking ID.");
+        return;
+    }
+
+    Console.Write("Enter new booking status (Pending, Confirmed, Cancelled): ");
+    string? newStatus = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newStatus))
+    {
+        Console.WriteLine("Booking status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE bookings
+        SET booking_status = @status
+        WHERE booking_id = @bookingId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@status", newStatus);
+    command.Parameters.AddWithValue("@bookingId", bookingId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Booking status updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Booking not found.");
+    }
+}
+
+// Update passenger payment status 
+
+static void UpdatePaymentStatus(NpgsqlConnection connection)
+{
+    Console.Write("Enter payment ID: ");
+    string? input = Console.ReadLine();
+
+    if (!int.TryParse(input, out int paymentId))
+    {
+        Console.WriteLine("Invalid payment ID.");
+        return;
+    }
+
+    Console.Write("Enter new payment status (Pending, Paid, Failed, Refunded): ");
+    string? newStatus = Console.ReadLine();
+
+    if (string.IsNullOrWhiteSpace(newStatus))
+    {
+        Console.WriteLine("Payment status cannot be empty.");
+        return;
+    }
+
+    string query = @"
+        UPDATE payments
+        SET payment_status = @status
+        WHERE payment_id = @paymentId;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+    command.Parameters.AddWithValue("@status", newStatus);
+    command.Parameters.AddWithValue("@paymentId", paymentId);
+
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+    {
+        Console.WriteLine("Payment status updated successfully!");
+    }
+    else
+    {
+        Console.WriteLine("Payment not found.");
+    }
 }
 
 // Retrieve data menu

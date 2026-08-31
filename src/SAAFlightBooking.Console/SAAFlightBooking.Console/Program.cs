@@ -162,6 +162,110 @@ static void ReportsAndJoins(NpgsqlConnection connection)
     }
 }
 
+// Inner join reports Passenger booking report
+
+static void PassengerBookingReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            p.passenger_id,
+            p.first_name,
+            p.last_name,
+            b.booking_id,
+            b.booking_date,
+            b.booking_status,
+            f.flight_number
+        FROM passengers p
+        INNER JOIN booking_passengers bp
+            ON p.passenger_id = bp.passenger_id
+        INNER JOIN bookings b
+            ON bp.booking_id = b.booking_id
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+        ORDER BY p.passenger_id, b.booking_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("             PASSENGER BOOKING REPORT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Passenger ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]}"
+        );
+
+        Console.WriteLine(
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight: {reader["flight_number"]} | " +
+            $"Date: {reader["booking_date"]} | " +
+            $"Status: {reader["booking_status"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Passenger booking report generated successfully!");
+}
+
+// Flight manifest
+
+static void FlightManifest(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            a1.airport_code AS departure_code,
+            a1.city AS departure_city,
+            a2.airport_code AS arrival_code,
+            a2.city AS arrival_city,
+            p.first_name,
+            p.last_name,
+            b.booking_status
+        FROM flights f
+        INNER JOIN airports a1
+            ON f.departure_airport_id = a1.airport_id
+        INNER JOIN airports a2
+            ON f.arrival_airport_id = a2.airport_id
+        INNER JOIN bookings b
+            ON f.flight_id = b.flight_id
+        INNER JOIN booking_passengers bp
+            ON b.booking_id = bp.booking_id
+        INNER JOIN passengers p
+            ON bp.passenger_id = p.passenger_id
+        ORDER BY f.flight_number, p.last_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  FLIGHT MANIFEST");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Passenger: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Booking Status: {reader["booking_status"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Flight manifest generated successfully!");
+}
+
 // Delete submenu
 
 static void DeleteData(NpgsqlConnection connection)

@@ -67,7 +67,7 @@ try
                 break;
 
             case "4":
-                Console.WriteLine("Delete Data functionality will be added in Task 9.");
+                DeleteData(connection);
                 break;
 
             case "5":
@@ -92,6 +92,35 @@ catch (Exception ex)
 {
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
+}
+
+// Delete submenu
+
+static void DeleteData(NpgsqlConnection connection)
+{
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  DELETE DATA");
+    Console.WriteLine("==================================================");
+    Console.WriteLine("1. Delete Booking");
+    Console.WriteLine("2. Back to Main Menu");
+    Console.WriteLine("==================================================");
+    Console.Write("Select an option: ");
+
+    string? choice = Console.ReadLine();
+
+    switch (choice)
+    {
+        case "1":
+            DeleteBooking(connection);
+            break;
+
+        case "2":
+            break;
+
+        default:
+            Console.WriteLine("Invalid option.");
+            break;
+    }
 }
 
 // Update submenu

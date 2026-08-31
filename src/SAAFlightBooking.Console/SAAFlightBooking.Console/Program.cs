@@ -380,7 +380,7 @@ static void BookingCountReport(NpgsqlConnection connection)
     using NpgsqlDataReader reader = command.ExecuteReader();
 
     Console.WriteLine("==================================================");
-    Console.WriteLine("              BOOKINGS PER FLIGHT");
+    Console.WriteLine("                 BOOKINGS PER FLIGHT");
     Console.WriteLine("==================================================");
 
     while (reader.Read())

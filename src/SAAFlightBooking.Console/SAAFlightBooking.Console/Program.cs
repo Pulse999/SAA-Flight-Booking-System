@@ -112,7 +112,7 @@ static void ReportsAndJoins(NpgsqlConnection connection)
         Console.WriteLine("1. Passenger Booking Report");
         Console.WriteLine("2. Flight Manifest");
         Console.WriteLine("3. Tickets Issued Report");
-        Console.WriteLine("4. Passenger Booking Summary");
+        Console.WriteLine("4. Bookings Per Flight");
         Console.WriteLine("5. Revenue Per Flight");
         Console.WriteLine("6. Overall Booking Summary");
         Console.WriteLine("7. Back to Main Menu");
@@ -264,6 +264,135 @@ static void FlightManifest(NpgsqlConnection connection)
     }
 
     Console.WriteLine("Flight manifest generated successfully!");
+}
+
+// Tickets Issued Report
+
+static void TicketsIssuedReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            t.ticket_number,
+            t.ticket_status,
+            t.issue_date,
+            b.booking_id,
+            f.flight_number
+        FROM tickets t
+        INNER JOIN bookings b
+            ON t.booking_id = b.booking_id
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+        ORDER BY t.ticket_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                 TICKETS ISSUED REPORT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Ticket: {reader["ticket_number"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight: {reader["flight_number"]}"
+        );
+
+        Console.WriteLine(
+            $"Status: {reader["ticket_status"]} | " +
+            $"Issue Date: {reader["issue_date"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Tickets report generated successfully!");
+}
+
+// Passenger booking summary
+
+static void PassengerBookingSummary(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            p.passenger_id,
+            p.first_name,
+            p.last_name,
+            b.booking_id,
+            b.booking_status
+        FROM passengers p
+        LEFT JOIN booking_passengers bp
+            ON p.passenger_id = bp.passenger_id
+        LEFT JOIN bookings b
+            ON bp.booking_id = b.booking_id
+        ORDER BY p.passenger_id, b.booking_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("            PASSENGER BOOKING SUMMARY");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        string bookingId = reader["booking_id"] == DBNull.Value
+            ? "No booking"
+            : reader["booking_id"].ToString()!;
+
+        string bookingStatus = reader["booking_status"] == DBNull.Value
+            ? "No booking"
+            : reader["booking_status"].ToString()!;
+
+        Console.WriteLine(
+            $"Passenger ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Booking ID: {bookingId} | " +
+            $"Status: {bookingStatus}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Passenger booking summary generated successfully!");
+}
+
+// Booking count report
+
+static void BookingCountReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            COUNT(b.booking_id) AS total_bookings
+        FROM flights f
+        LEFT JOIN bookings b
+            ON f.flight_id = b.flight_id
+        GROUP BY
+            f.flight_id,
+            f.flight_number
+        ORDER BY total_bookings DESC;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("              BOOKINGS PER FLIGHT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Total Bookings: {reader["total_bookings"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Booking count report generated successfully!");
 }
 
 // Delete submenu

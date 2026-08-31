@@ -71,7 +71,7 @@ try
                 break;
 
             case "5":
-                Console.WriteLine("Reports & Joins functionality will be added in Task 10.");
+                ReportsAndJoins(connection);
                 break;
 
             case "6":
@@ -92,6 +92,74 @@ catch (Exception ex)
 {
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
+}
+
+// reports and joins submenu
+
+// ==================================================
+// REPORTS & JOINS
+// ==================================================
+
+static void ReportsAndJoins(NpgsqlConnection connection)
+{
+    bool reporting = true;
+
+    while (reporting)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("                 REPORTS & JOINS");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Passenger Booking Report");
+        Console.WriteLine("2. Flight Manifest");
+        Console.WriteLine("3. Tickets Issued Report");
+        Console.WriteLine("4. Passenger Booking Summary");
+        Console.WriteLine("5. Revenue Per Flight");
+        Console.WriteLine("6. Overall Booking Summary");
+        Console.WriteLine("7. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                PassengerBookingReport(connection);
+                break;
+
+            case "2":
+                FlightManifest(connection);
+                break;
+
+            case "3":
+                TicketsIssuedReport(connection);
+                break;
+
+            case "4":
+                PassengerBookingSummary(connection);
+                break;
+
+            case "5":
+                RevenuePerFlight(connection);
+                break;
+
+            case "6":
+                OverallBookingSummary(connection);
+                break;
+
+            case "7":
+                reporting = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select a number from 1 to 7.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
 }
 
 // Delete submenu

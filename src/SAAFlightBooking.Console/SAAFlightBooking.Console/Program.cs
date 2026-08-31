@@ -123,6 +123,49 @@ static void DeleteData(NpgsqlConnection connection)
     }
 }
 
+// Remove booking records
+
+static void DeleteBooking(NpgsqlConnection connection)
+{
+    Console.Write("Enter booking ID to delete: ");
+
+    if (!int.TryParse(Console.ReadLine(), out int bookingId))
+    {
+        Console.WriteLine("Invalid booking ID.");
+        return;
+    }
+
+    string query = @"
+        DELETE FROM bookings
+        WHERE booking_id = @booking_id;
+    ";
+
+    try
+    {
+        using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
+        command.Parameters.AddWithValue("@booking_id", bookingId);
+
+        int rowsAffected = command.ExecuteNonQuery();
+
+        if (rowsAffected > 0)
+        {
+            Console.WriteLine("Booking deleted successfully.");
+        }
+        else
+        {
+            Console.WriteLine("No booking was found with that ID.");
+        }
+    }
+    catch (PostgresException ex)
+    {
+        Console.WriteLine();
+        Console.WriteLine("Unable to delete booking.");
+        Console.WriteLine("The booking is still referenced by related records.");
+        Console.WriteLine($"Database message: {ex.MessageText}");
+    }
+}
+
 // Update submenu
 
 static void UpdateData(NpgsqlConnection connection)

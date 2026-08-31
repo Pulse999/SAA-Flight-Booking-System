@@ -395,6 +395,77 @@ static void BookingCountReport(NpgsqlConnection connection)
     Console.WriteLine("Booking count report generated successfully!");
 }
 
+// Revenue per flight 
+
+static void RevenuePerFlight(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            SUM(pay.amount) AS total_revenue
+        FROM flights f
+        INNER JOIN bookings b
+            ON f.flight_id = b.flight_id
+        INNER JOIN payments pay
+            ON b.booking_id = pay.booking_id
+        WHERE pay.payment_status = 'Paid'
+        GROUP BY
+            f.flight_id,
+            f.flight_number
+        ORDER BY total_revenue DESC;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               REVENUE PER FLIGHT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Revenue: R{Convert.ToDecimal(reader["total_revenue"]):N2}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Revenue report generated successfully!");
+}
+
+// Overall Booking summary 
+
+static void OverallBookingSummary(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            COUNT(*) AS total_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Confirmed') AS confirmed_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Pending') AS pending_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Cancelled') AS cancelled_bookings
+        FROM bookings;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               OVERALL BOOKING SUMMARY");
+    Console.WriteLine("==================================================");
+
+    if (reader.Read())
+    {
+        Console.WriteLine($"Total Bookings:     {reader["total_bookings"]}");
+        Console.WriteLine($"Confirmed Bookings: {reader["confirmed_bookings"]}");
+        Console.WriteLine($"Pending Bookings:   {reader["pending_bookings"]}");
+        Console.WriteLine($"Cancelled Bookings: {reader["cancelled_bookings"]}");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Overall booking summary generated successfully!");
+}
+
 // Delete submenu
 
 static void DeleteData(NpgsqlConnection connection)

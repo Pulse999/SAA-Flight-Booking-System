@@ -71,7 +71,7 @@ try
                 break;
 
             case "5":
-                Console.WriteLine("Reports & Joins functionality will be added in Task 10.");
+                ReportsAndJoins(connection);
                 break;
 
             case "6":
@@ -92,6 +92,378 @@ catch (Exception ex)
 {
     Console.WriteLine("Database connection failed.");
     Console.WriteLine(ex.Message);
+}
+
+// reports and joins submenu
+
+// ==================================================
+// REPORTS & JOINS
+// ==================================================
+
+static void ReportsAndJoins(NpgsqlConnection connection)
+{
+    bool reporting = true;
+
+    while (reporting)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("                 REPORTS & JOINS");
+        Console.WriteLine("==================================================");
+        Console.WriteLine("1. Passenger Booking Report");
+        Console.WriteLine("2. Flight Manifest");
+        Console.WriteLine("3. Tickets Issued Report");
+        Console.WriteLine("4. Bookings Per Flight");
+        Console.WriteLine("5. Revenue Per Flight");
+        Console.WriteLine("6. Overall Booking Summary");
+        Console.WriteLine("7. Back to Main Menu");
+        Console.WriteLine("==================================================");
+        Console.Write("Select an option: ");
+
+        string? choice = Console.ReadLine();
+
+        Console.WriteLine();
+
+        switch (choice)
+        {
+            case "1":
+                PassengerBookingReport(connection);
+                break;
+
+            case "2":
+                FlightManifest(connection);
+                break;
+
+            case "3":
+                TicketsIssuedReport(connection);
+                break;
+
+            case "4":
+                PassengerBookingSummary(connection);
+                break;
+
+            case "5":
+                RevenuePerFlight(connection);
+                break;
+
+            case "6":
+                OverallBookingSummary(connection);
+                break;
+
+            case "7":
+                reporting = false;
+                break;
+
+            default:
+                Console.WriteLine("Invalid option. Please select a number from 1 to 7.");
+                break;
+        }
+
+        Console.WriteLine();
+    }
+}
+
+// Inner join reports Passenger booking report
+
+static void PassengerBookingReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            p.passenger_id,
+            p.first_name,
+            p.last_name,
+            b.booking_id,
+            b.booking_date,
+            b.booking_status,
+            f.flight_number
+        FROM passengers p
+        INNER JOIN booking_passengers bp
+            ON p.passenger_id = bp.passenger_id
+        INNER JOIN bookings b
+            ON bp.booking_id = b.booking_id
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+        ORDER BY p.passenger_id, b.booking_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("             PASSENGER BOOKING REPORT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Passenger ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]}"
+        );
+
+        Console.WriteLine(
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight: {reader["flight_number"]} | " +
+            $"Date: {reader["booking_date"]} | " +
+            $"Status: {reader["booking_status"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Passenger booking report generated successfully!");
+}
+
+// Flight manifest
+
+static void FlightManifest(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            a1.airport_code AS departure_code,
+            a1.city AS departure_city,
+            a2.airport_code AS arrival_code,
+            a2.city AS arrival_city,
+            p.first_name,
+            p.last_name,
+            b.booking_status
+        FROM flights f
+        INNER JOIN airports a1
+            ON f.departure_airport_id = a1.airport_id
+        INNER JOIN airports a2
+            ON f.arrival_airport_id = a2.airport_id
+        INNER JOIN bookings b
+            ON f.flight_id = b.flight_id
+        INNER JOIN booking_passengers bp
+            ON b.booking_id = bp.booking_id
+        INNER JOIN passengers p
+            ON bp.passenger_id = p.passenger_id
+        ORDER BY f.flight_number, p.last_name;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                  FLIGHT MANIFEST");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Route: {reader["departure_city"]} ({reader["departure_code"]}) -> " +
+            $"{reader["arrival_city"]} ({reader["arrival_code"]})"
+        );
+
+        Console.WriteLine(
+            $"Passenger: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Booking Status: {reader["booking_status"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Flight manifest generated successfully!");
+}
+
+// Tickets Issued Report
+
+static void TicketsIssuedReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            t.ticket_number,
+            t.ticket_status,
+            t.issue_date,
+            b.booking_id,
+            f.flight_number
+        FROM tickets t
+        INNER JOIN bookings b
+            ON t.booking_id = b.booking_id
+        INNER JOIN flights f
+            ON b.flight_id = f.flight_id
+        ORDER BY t.ticket_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                 TICKETS ISSUED REPORT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Ticket: {reader["ticket_number"]} | " +
+            $"Booking ID: {reader["booking_id"]} | " +
+            $"Flight: {reader["flight_number"]}"
+        );
+
+        Console.WriteLine(
+            $"Status: {reader["ticket_status"]} | " +
+            $"Issue Date: {reader["issue_date"]}"
+        );
+
+        Console.WriteLine("--------------------------------------------------");
+    }
+
+    Console.WriteLine("Tickets report generated successfully!");
+}
+
+// Passenger booking summary
+
+static void PassengerBookingSummary(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            p.passenger_id,
+            p.first_name,
+            p.last_name,
+            b.booking_id,
+            b.booking_status
+        FROM passengers p
+        LEFT JOIN booking_passengers bp
+            ON p.passenger_id = bp.passenger_id
+        LEFT JOIN bookings b
+            ON bp.booking_id = b.booking_id
+        ORDER BY p.passenger_id, b.booking_id;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("            PASSENGER BOOKING SUMMARY");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        string bookingId = reader["booking_id"] == DBNull.Value
+            ? "No booking"
+            : reader["booking_id"].ToString()!;
+
+        string bookingStatus = reader["booking_status"] == DBNull.Value
+            ? "No booking"
+            : reader["booking_status"].ToString()!;
+
+        Console.WriteLine(
+            $"Passenger ID: {reader["passenger_id"]} | " +
+            $"Name: {reader["first_name"]} {reader["last_name"]} | " +
+            $"Booking ID: {bookingId} | " +
+            $"Status: {bookingStatus}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Passenger booking summary generated successfully!");
+}
+
+// Booking count report
+
+static void BookingCountReport(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            COUNT(b.booking_id) AS total_bookings
+        FROM flights f
+        LEFT JOIN bookings b
+            ON f.flight_id = b.flight_id
+        GROUP BY
+            f.flight_id,
+            f.flight_number
+        ORDER BY total_bookings DESC;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("                 BOOKINGS PER FLIGHT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Total Bookings: {reader["total_bookings"]}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Booking count report generated successfully!");
+}
+
+// Revenue per flight 
+
+static void RevenuePerFlight(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            f.flight_number,
+            SUM(pay.amount) AS total_revenue
+        FROM flights f
+        INNER JOIN bookings b
+            ON f.flight_id = b.flight_id
+        INNER JOIN payments pay
+            ON b.booking_id = pay.booking_id
+        WHERE pay.payment_status = 'Paid'
+        GROUP BY
+            f.flight_id,
+            f.flight_number
+        ORDER BY total_revenue DESC;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               REVENUE PER FLIGHT");
+    Console.WriteLine("==================================================");
+
+    while (reader.Read())
+    {
+        Console.WriteLine(
+            $"Flight: {reader["flight_number"]} | " +
+            $"Revenue: R{Convert.ToDecimal(reader["total_revenue"]):N2}"
+        );
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Revenue report generated successfully!");
+}
+
+// Overall Booking summary 
+
+static void OverallBookingSummary(NpgsqlConnection connection)
+{
+    string query = @"
+        SELECT
+            COUNT(*) AS total_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Confirmed') AS confirmed_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Pending') AS pending_bookings,
+            COUNT(*) FILTER (WHERE booking_status = 'Cancelled') AS cancelled_bookings
+        FROM bookings;
+    ";
+
+    using NpgsqlCommand command = new NpgsqlCommand(query, connection);
+    using NpgsqlDataReader reader = command.ExecuteReader();
+
+    Console.WriteLine("==================================================");
+    Console.WriteLine("               OVERALL BOOKING SUMMARY");
+    Console.WriteLine("==================================================");
+
+    if (reader.Read())
+    {
+        Console.WriteLine($"Total Bookings:     {reader["total_bookings"]}");
+        Console.WriteLine($"Confirmed Bookings: {reader["confirmed_bookings"]}");
+        Console.WriteLine($"Pending Bookings:   {reader["pending_bookings"]}");
+        Console.WriteLine($"Cancelled Bookings: {reader["cancelled_bookings"]}");
+    }
+
+    Console.WriteLine("--------------------------------------------------");
+    Console.WriteLine("Overall booking summary generated successfully!");
 }
 
 // Delete submenu
